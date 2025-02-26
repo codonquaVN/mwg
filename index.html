@@ -43,6 +43,8 @@
             text-align: center;
             z-index: 2;
             padding: 2px 0;
+            opacity: 0;
+            transition: opacity 0.3s;
         }
         .tooltip {
             position: absolute;
@@ -87,6 +89,8 @@
             z-index: 100;
         }
         .modal img {
+            max-width: 80%;
+            max-height: 80%;
             transform: scale(2);
             z-index: 101;
         }
@@ -133,6 +137,12 @@
                     img.onerror = function() {
                         avatarContainer.remove(); // Xóa ảnh bị lỗi
                     };
+                    img.onmouseover = function() {
+                        employeeId.style.opacity = 1;
+                    };
+                    img.onmouseout = function() {
+                        employeeId.style.opacity = 0;
+                    };
                     img.onclick = function() {
                         modalImg.src = this.src;
                         modal.style.display = 'flex';
@@ -166,6 +176,12 @@
                     img.style.transition = "transform 0.3s, z-index 0.3s";
                     img.onerror = function() {
                         avatarContainer.remove(); // Xóa ảnh bị lỗi
+                    };
+                    img.onmouseover = function() {
+                        employeeId.style.opacity = 1;
+                    };
+                    img.onmouseout = function() {
+                        employeeId.style.opacity = 0;
                     };
                     img.onclick = function() {
                         modalImg.src = this.src;

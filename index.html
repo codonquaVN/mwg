@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Avatars</title>
+    <style>
+        img {
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            transition: transform 0.3s;
+        }
+        img:hover {
+            transform: scale(1.1);
+        }
+        .tooltip {
+            position: absolute;
+            background-color: #333;
+            color: #fff;
+            padding: 5px;
+            border-radius: 5px;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+    </style>
+</head>
+<body>
+    <h1>Employee Avatars</h1>
+    <input type="text" id="search" placeholder="Enter employee IDs (e.g., 19779,19780)">
+    <button onclick="searchEmployees()">Search</button>
+    <div id="avatars"></div>
+    <div id="tooltip" class="tooltip"></div>
+
+    <script>
+        const baseUrl = "https://insite.thegioididong.com/cdninsite/UserImages/reviewed/";
+        const container = document.getElementById('avatars');
+        const tooltip = document.getElementById('tooltip');
+        const allImages = [];
+
+        for (let i = 1001; i <= 200000; i++) {
+            const img = document.createElement('img');
+            img.src = `${baseUrl}${i}_thumb.jpg`;
+            img.alt = `Avatar of employee ${i}`;
+            img.dataset.id = i;
+            img.onerror = function() {
+                this.style.display = 'none';
+            };
+            img.onmouseover = function(event) {
+                tooltip.textContent = `Employee ID: ${i}`;
+                tooltip.style.left = `${event.pageX + 10}px`;
+                tooltip.style.top = `${event.pageY + 10}px`;
+                tooltip.style.opacity = 1;
+            };
+            img.onmouseout = function() {
+                tooltip.style.opacity = 0;
+            };
+            allImages.push(img);
+            container.appendChild(img);
+        }
+
+        function searchEmployees() {
+            const query = document.getElementById('search').value;
+            const ids = query.split(/[, :]+/).map(id => id.trim());
+            container.innerHTML = '';
+            allImages.forEach(img => {
+                if (ids.includes(img.dataset.id)) {
+                    container.appendChild(img);
+                }
+            });
+        }
+    </script>
+</body>
+</html>

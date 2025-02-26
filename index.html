@@ -131,7 +131,7 @@
                     img.loading = "lazy";
                     img.style.transition = "transform 0.3s, z-index 0.3s";
                     img.onerror = function() {
-                        this.style.display = 'none';
+                        avatarContainer.remove(); // Xóa ảnh bị lỗi
                     };
                     img.onclick = function() {
                         modalImg.src = this.src;
@@ -165,7 +165,7 @@
                     img.loading = "lazy";
                     img.style.transition = "transform 0.3s, z-index 0.3s";
                     img.onerror = function() {
-                        this.style.display = 'none';
+                        avatarContainer.remove(); // Xóa ảnh bị lỗi
                     };
                     img.onclick = function() {
                         modalImg.src = this.src;

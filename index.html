@@ -1,15 +1,27 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="en">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Employee Avatars</title>
+    <title>Nhân viên MWG</title>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin-left: 50px; /* Lùi vào lề trái nhiều hơn */
+        }
+        #avatars {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+        }
         img {
             width: 100px;
             height: 100px;
             margin: 5px;
-            transition: transform 0.3s;
+            transition: transform 0.3s, z-index 0.3s;
+            cursor: pointer;
+            position: relative;
+            z-index: 1;
         }
         img:hover {
             transform: scale(1.1);
@@ -23,53 +35,133 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s;
+            z-index: 102; /* Đảm bảo tooltip luôn hiển thị trên ảnh */
+        }
+        .hint {
+            margin: 10px 0;
+            color: red;
+            font-style: italic;
+        }
+        .control-panel {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .btn {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal img {
+            transform: scale(2);
+            z-index: 101;
         }
     </style>
 </head>
 <body>
-    <h1>Employee Avatars</h1>
-    <input type="text" id="search" placeholder="Enter employee IDs (e.g., 19779,19780)">
-    <button onclick="searchEmployees()">Search</button>
+    <h1>Nhân viên MWG</h1>
+    <div class="control-panel">
+        <input type="text" id="search" placeholder="Nhập User bạn muốn tìm (e.g., 34892,57322)">
+        <button class="btn" onclick="searchEmployees()">Tìm kiếm</button>
+        <button class="btn" onclick="location.reload();">Làm mới</button>
+    </div>
+    <div class="hint">Tìm User: Nhấn Enter để tìm kiếm, nhập nhiều user ngăn cách bằng dấu ,</div>
     <div id="avatars"></div>
     <div id="tooltip" class="tooltip"></div>
+    <div id="modal" class="modal" onclick="this.style.display='none'">
+        <img src="" alt="">
+    </div>
 
     <script>
         const baseUrl = "https://insite.thegioididong.com/cdninsite/UserImages/reviewed/";
         const container = document.getElementById('avatars');
         const tooltip = document.getElementById('tooltip');
-        const allImages = [];
+        const modal = document.getElementById('modal');
+        const modalImg = modal.querySelector('img');
+        const maxID = 200000;
+        const minID = 1001;
 
-        for (let i = 1001; i <= 200000; i++) {
-            const img = document.createElement('img');
-            img.src = `${baseUrl}${i}_thumb.jpg`;
-            img.alt = `Avatar of employee ${i}`;
-            img.dataset.id = i;
-            img.onerror = function() {
-                this.style.display = 'none';
-            };
-            img.onmouseover = function(event) {
-                tooltip.textContent = `Employee ID: ${i}`;
-                tooltip.style.left = `${event.pageX + 10}px`;
-                tooltip.style.top = `${event.pageY + 10}px`;
-                tooltip.style.opacity = 1;
-            };
-            img.onmouseout = function() {
-                tooltip.style.opacity = 0;
-            };
-            allImages.push(img);
-            container.appendChild(img);
+        function loadRandomImages() {
+            const usedIDs = new Set();
+            while (usedIDs.size < 34892) {
+                const randomID = Math.floor(Math.random() * (maxID - minID + 1)) + minID;
+                if (!usedIDs.has(randomID)) {
+                    usedIDs.add(randomID);
+                    const img = document.createElement('img');
+                    img.src = `${baseUrl}${randomID}_thumb.jpg`;
+                    img.alt = `Avatar of employee ${randomID}`;
+                    img.dataset.id = randomID;
+                    img.loading = "lazy";
+                    img.style.transition = "transform 0.3s, z-index 0.3s";
+                    img.onerror = function() {
+                        this.style.display = 'none';
+                    };
+                    img.onmouseover = function(event) {
+                        tooltip.textContent = `Mã nhân viên: ${randomID}`;
+                        tooltip.style.left = `${event.pageX + 10}px`;
+                        tooltip.style.top = `${event.pageY + 10}px`;
+                        tooltip.style.opacity = 1;
+                    };
+                    img.onmouseout = function() {
+                        tooltip.style.opacity = 0;
+                    };
+                    img.onclick = function() {
+                        modalImg.src = this.src;
+                        modal.style.display = 'flex';
+                    };
+                    container.appendChild(img);
+                }
+            }
         }
 
         function searchEmployees() {
             const query = document.getElementById('search').value;
             const ids = query.split(/[, :]+/).map(id => id.trim());
             container.innerHTML = '';
-            allImages.forEach(img => {
-                if (ids.includes(img.dataset.id)) {
+            ids.forEach(id => {
+                if (!isNaN(id) && id >= minID && id <= maxID) {
+                    const img = document.createElement('img');
+                    img.src = `${baseUrl}${id}_thumb.jpg`;
+                    img.alt = `Avatar of employee ${id}`;
+                    img.dataset.id = id;
+                    img.loading = "lazy";
+                    img.style.transition = "transform 0.3s, z-index 0.3s";
+                    img.onerror = function() {
+                        this.style.display = 'none';
+                    };
+                    img.onclick = function() {
+                        modalImg.src = this.src;
+                        modal.style.display = 'flex';
+                    };
                     container.appendChild(img);
                 }
             });
         }
+
+        document.getElementById('search').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                searchEmployees();
+            }
+        });
+
+        // Initial random load
+        loadRandomImages();
     </script>
 </body>
 </html>

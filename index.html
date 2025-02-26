@@ -7,24 +7,40 @@
     <style>
         body {
             font-family: Arial, sans-serif;
-            margin-left: 5px; /* Lùi vào lề trái nhiều hơn */
+            margin-left: 5px;
         }
         #avatars {
             display: flex;
             flex-wrap: wrap;
             justify-content: flex-start;
         }
-        img {
+        .avatar-container {
+            position: relative;
             width: 100px;
             height: 100px;
             margin: 5px;
-            transition: transform 0.3s, z-index 0.3s;
             cursor: pointer;
+        }
+        img {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s, z-index 0.3s;
             position: relative;
             z-index: 1;
         }
         img:hover {
             transform: scale(1.1);
+        }
+        .employee-id {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 12px;
+            z-index: 2;
         }
         .tooltip {
             position: absolute;
@@ -35,7 +51,7 @@
             pointer-events: none;
             opacity: 0;
             transition: opacity 0.3s;
-            z-index: 102; /* Đảm bảo tooltip luôn hiển thị trên ảnh */
+            z-index: 102;
         }
         .hint {
             margin: 10px 0;
@@ -103,6 +119,9 @@
                 const randomID = Math.floor(Math.random() * (maxID - minID + 1)) + minID;
                 if (!usedIDs.has(randomID)) {
                     usedIDs.add(randomID);
+                    const avatarContainer = document.createElement('div');
+                    avatarContainer.className = 'avatar-container';
+
                     const img = document.createElement('img');
                     img.src = `${baseUrl}${randomID}_thumb.jpg`;
                     img.alt = `Avatar of employee ${randomID}`;
@@ -112,20 +131,18 @@
                     img.onerror = function() {
                         this.style.display = 'none';
                     };
-                    img.onmouseover = function(event) {
-                        tooltip.textContent = `MNV: ${randomID}`;
-                        tooltip.style.left = `${event.pageX + 10}px`;
-                        tooltip.style.top = `${event.pageY + 10}px`;
-                        tooltip.style.opacity = 1;
-                    };
-                    img.onmouseout = function() {
-                        tooltip.style.opacity = 0;
-                    };
                     img.onclick = function() {
                         modalImg.src = this.src;
                         modal.style.display = 'flex';
                     };
-                    container.appendChild(img);
+
+                    const employeeId = document.createElement('div');
+                    employeeId.className = 'employee-id';
+                    employeeId.textContent = `Mã NV: ${randomID}`;
+
+                    avatarContainer.appendChild(img);
+                    avatarContainer.appendChild(employeeId);
+                    container.appendChild(avatarContainer);
                 }
             }
         }
@@ -136,6 +153,9 @@
             container.innerHTML = '';
             ids.forEach(id => {
                 if (!isNaN(id) && id >= minID && id <= maxID) {
+                    const avatarContainer = document.createElement('div');
+                    avatarContainer.className = 'avatar-container';
+
                     const img = document.createElement('img');
                     img.src = `${baseUrl}${id}_thumb.jpg`;
                     img.alt = `Avatar of employee ${id}`;
@@ -149,7 +169,14 @@
                         modalImg.src = this.src;
                         modal.style.display = 'flex';
                     };
-                    container.appendChild(img);
+
+                    const employeeId = document.createElement('div');
+                    employeeId.className = 'employee-id';
+                    employeeId.textContent = `Mã NV: ${id}`;
+
+                    avatarContainer.appendChild(img);
+                    avatarContainer.appendChild(employeeId);
+                    container.appendChild(avatarContainer);
                 }
             });
         }

@@ -182,12 +182,13 @@
         .comment-box-var {
             display: none;
         }
+        /* Bố trí lại để var nằm dưới ô tìm kiếm */
         .fb-row {
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            gap: 36px;
-            margin: 32px 0 18px 0;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            margin: 32px 0 0 0;
         }
         .fb-search-card {
             width: 280px;
@@ -200,6 +201,7 @@
             flex-direction: column;
             gap: 10px;
             align-items: stretch;
+            margin-bottom: 0px;
         }
         .fb-comment-card {
             width: 480px;
@@ -212,6 +214,7 @@
             flex-direction: column;
             gap: 10px;
             align-items: stretch;
+            margin: 16px auto 0 auto;
         }
         .fb-comment-title {
             margin-top: 0;
@@ -272,14 +275,14 @@
             <button class="btn" onclick="searchEmployees()">Tìm kiếm</button>
             <button class="btn" onclick="location.reload();">Làm mới</button>
         </div>
-        <div class="fb-comment-card" id="var-card">
-            <h3 class="fb-comment-title">Var</h3>
-            <div style="margin-bottom: 16px; color: #d32f2f; font-size: 15px; font-weight: bold; background: #fff3f3; border-radius: 6px; padding: 8px 10px;">
-              Hãy tìm user bạn muốn xem và viết hoặc xem những lời nhắn về user đó ở dưới đây.<br>
-              Bạn muốn để lại var về ai thì gõ @ user kèm lời nhắn
-            </div>
-            <button class="btn" style="margin-top: 12px; width: 100%; background: #f0f2f5; color: #222; border: 1px solid #ccc;" onclick="openCommentModal()">Xem bình luận</button>
+    </div>
+    <div class="fb-comment-card" id="var-card">
+        <h3 class="fb-comment-title">Var</h3>
+        <div style="margin-bottom: 16px; color: #d32f2f; font-size: 15px; font-weight: bold; background: #fff3f3; border-radius: 6px; padding: 8px 10px;">
+          Hãy tìm user bạn muốn xem và viết hoặc xem những lời nhắn về user đó ở dưới đây.<br>
+          Bạn muốn để lại var về ai thì gõ @ user kèm lời nhắn
         </div>
+        <button class="btn" style="margin-top: 12px; width: 100%; background: #f0f2f5; color: #222; border: 1px solid #ccc;" onclick="openCommentModal()">Xem bình luận</button>
     </div>
     <div id="avatars"></div>
     <div id="modal" class="modal" onclick="this.style.display='none'">
@@ -398,6 +401,7 @@
       let commentListeners = {};
       function renderComments() {
           const commentDiv = document.getElementById('comments');
+          if (!commentDiv) return;
           commentDiv.innerHTML = '';
           Object.values(commentListeners).forEach(unsub => unsub && unsub());
           commentListeners = {};

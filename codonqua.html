@@ -1,0 +1,759 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nhân viên MWG</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+        .center-block {
+            width: 100%;
+            max-width: 600px;
+            margin: 32px auto 18px auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 18px;
+        }
+        .control-panel {
+            display: none;
+        }
+        .comment-box {
+            flex: 1 1 0;
+            min-width: 350px;
+            max-width: 50%;
+            width: 100%;
+            max-height: 420px;
+            overflow-y: auto;
+            border: 1px solid #ccc;
+            padding: 10px 16px 10px 16px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-sizing: border-box;
+        }
+        #comments {
+            max-height: 340px;
+            overflow-y: auto;
+        }
+        .comment {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            border-radius: 4px;
+            margin-bottom: 4px;
+            padding: 3px 6px;
+            min-height: 24px;
+            font-size: 13px;
+        }
+        .comment .avatar-thumb {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            object-fit: cover;
+            margin: 0 2px 0 2px;
+            border: 1px solid #ccc;
+            vertical-align: middle;
+        }
+        .comment-content {
+            display: flex;
+            align-items: center;
+            gap: 3px;
+            flex: 1;
+        }
+        .comment-id {
+            font-weight: normal;
+            font-size: 13px;
+            margin: 0 1px;
+        }
+        .comment-at {
+            font-weight: bold;
+            color: #007bff;
+            margin-right: 1px;
+        }
+        .comment-colon {
+            margin: 0 2px;
+        }
+        #comment-input {
+            width: 100%;
+            margin-top: 10px;
+        }
+        .btn {
+            padding: 5px 10px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        .reply {
+            margin-left: 32px;
+            color: #555;
+            margin-top: 2px;
+            display: block;
+            font-size: 13px;
+            background: #f7f7f7;
+            border-radius: 6px;
+            padding: 4px 8px;
+            margin-bottom: 2px;
+            word-break: break-word;
+            white-space: pre-line;
+        }
+        .reply:before {
+            content: "↳ ";
+            color: #007bff;
+            margin-right: 2px;
+        }
+        .comment input[type="text"] {
+            margin-top: 2px;
+            margin-bottom: 2px;
+            width: 120px;
+            font-size: 12px;
+            padding: 2px 4px;
+        }
+        .comment .btn {
+            margin-left: 3px;
+            font-size: 12px;
+            padding: 2px 6px;
+        }
+        #avatars {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: flex-start;
+            margin-top: 20px;
+        }
+        .avatar-container {
+            position: relative;
+            width: 100px;
+            height: 100px;
+            margin: 5px;
+            cursor: pointer;
+        }
+        .avatar-container img {
+            width: 100%;
+            height: 100%;
+            transition: transform 0.3s, z-index 0.3s;
+            position: relative;
+            z-index: 1;
+        }
+        .avatar-container img:hover {
+            transform: scale(1.1);
+        }
+        .employee-id {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(0, 0, 0, 0.5);
+            color: white;
+            font-size: 12px;
+            width: 100%;
+            text-align: center;
+            z-index: 2;
+            padding: 2px 0;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+        }
+        .modal img {
+            max-width: 200px;
+            max-height: 200px;
+            transform: scale(1.5);
+            z-index: 101;
+        }
+        .comment-box-var {
+            display: none;
+        }
+        /* Bố trí lại để var nằm dưới ô tìm kiếm */
+        .fb-row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0;
+            margin: 32px 0 0 0;
+        }
+        .fb-search-card {
+            width: 280px;
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.07);
+            padding: 18px 18px 14px 18px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            margin-bottom: 0px;
+        }
+        .fb-comment-card {
+            width: 480px;
+            background: #fff;
+            border-radius: 14px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.10);
+            padding: 18px 24px 18px 24px;
+            box-sizing: border-box;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            align-items: stretch;
+            margin: 16px auto 0 auto;
+        }
+        .fb-comment-title {
+            margin-top: 0;
+            margin-bottom: 10px;
+            font-size: 20px;
+            font-weight: 600;
+            color: #222;
+            letter-spacing: 0.5px;
+        }
+        .fb-comment-input-row {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        .fb-comment-input-row input[type="text"] {
+            flex: 1;
+            font-size: 14px;
+            padding: 6px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+        }
+        .fb-comment-input-row .btn {
+            font-size: 14px;
+            padding: 6px 16px;
+            border-radius: 6px;
+        }
+        .fb-modal {
+            position: fixed;
+            z-index: 9999;
+            left: 0; top: 0; width: 100vw; height: 100vh;
+            background: rgba(0,0,0,0.25);
+            display: flex; align-items: center; justify-content: center;
+        }
+        .fb-modal-content {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 16px rgba(0,0,0,0.15);
+            padding: 24px 32px 24px 32px;
+            min-width: 400px;
+            max-width: 90vw;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+        .fb-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">Nhân viên MWG</h1>
+    <div class="fb-row">
+        <div class="fb-search-card">
+            <input type="text" id="search" placeholder="User muốn tìm (vd:34892,...)">
+            <button class="btn" onclick="searchEmployees()">Tìm kiếm</button>
+            <button class="btn" onclick="location.reload();">Làm mới</button>
+        </div>
+    </div>
+    <div class="fb-comment-card" id="var-card">
+        <h3 class="fb-comment-title">Var</h3>
+        <div style="margin-bottom: 16px; color: #d32f2f; font-size: 15px; font-weight: bold; background: #fff3f3; border-radius: 6px; padding: 8px 10px;">
+          Hãy tìm user bạn muốn xem và viết hoặc xem những lời nhắn về user đó ở dưới đây.<br>
+          Bạn muốn để lại var về ai thì gõ @ user kèm lời nhắn
+        </div>
+        <button class="btn" style="margin-top: 12px; width: 100%; background: #f0f2f5; color: #222; border: 1px solid #ccc;" onclick="openCommentModal()">Xem bình luận</button>
+    </div>
+    <div id="avatars"></div>
+    <div id="modal" class="modal" onclick="this.style.display='none'">
+        <img src="" alt="">
+    </div>
+    <div id="comment-modal" class="fb-modal" style="display:none;">
+        <div class="fb-modal-content">
+            <div class="fb-modal-header">
+                <span style="font-size:18px;font-weight:600;">Tất cả bình luận</span>
+                <button class="btn" onclick="closeCommentModal()" style="float:right;">Đóng</button>
+            </div>
+            <div class="fb-comment-input-row" style="margin-top:12px;">
+                <input type="text" id="modal-comment-input" placeholder="Viết bình luận...">
+                <button class="btn" onclick="addModalComment()">Gửi</button>
+            </div>
+            <div id="modal-comments" style="margin-top:12px;"></div>
+        </div>
+    </div>
+    <div id="user-comments-block" style="max-width:900px;margin:24px auto 0 auto;"></div>
+
+    <!-- Firebase App (core) & Realtime Database -->
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+    <script>
+      const firebaseConfig = {
+        apiKey: "AIzaSyC01LpxuwZBUS906UBQpD3hU5z2ff0JLHw",
+        authDomain: "mwg-comments.firebaseapp.com",
+        projectId: "mwg-comments",
+        storageBucket: "mwg-comments.firebasestorage.app",
+        messagingSenderId: "239464715639",
+        appId: "1:239464715639:web:36fd85b895b9b1c58ebd72",
+        measurementId: "G-M63G4LWM1Z"
+      };
+      firebase.initializeApp(firebaseConfig);
+      const db = firebase.database();
+
+      const baseUrl = "https://insite.thegioididong.com/cdninsite/UserImages/reviewed/";
+      const container = document.getElementById('avatars');
+      const modal = document.getElementById('modal');
+      const modalImg = modal.querySelector('img');
+      const maxID = 500000;
+      const minID = 1001;
+      let currentSearchIDs = [];
+
+      // Lưu trạng thái show all replies cho từng comment (theo id+key)
+      const showAllRepliesMap = {};
+
+      function loadRandomImages() {
+          const usedIDs = new Set();
+          while (usedIDs.size < 5000) {
+              const randomID = Math.floor(Math.random() * (maxID - minID + 1)) + minID;
+              if (!usedIDs.has(randomID)) {
+                  usedIDs.add(randomID);
+                  renderAvatar(randomID);
+              }
+          }
+      }
+
+      function renderAvatar(id) {
+          const avatarContainer = document.createElement('div');
+          avatarContainer.className = 'avatar-container';
+
+          const img = document.createElement('img');
+          img.src = `${baseUrl}${id}_thumb.jpg`;
+          img.alt = `Avatar of employee ${id}`;
+          img.dataset.id = id;
+          img.loading = "lazy";
+          img.onerror = function () {
+              avatarContainer.remove();
+          };
+          img.onmouseover = function () {
+              employeeId.style.opacity = 1;
+          };
+          img.onmouseout = function () {
+              employeeId.style.opacity = 0;
+          };
+          img.onclick = function () {
+              modalImg.src = this.src;
+              modal.style.display = 'flex';
+          };
+
+          const employeeId = document.createElement('div');
+          employeeId.className = 'employee-id';
+          employeeId.textContent = `Mã NV: ${id}`;
+
+          avatarContainer.appendChild(img);
+          avatarContainer.appendChild(employeeId);
+          container.appendChild(avatarContainer);
+      }
+
+      // Lưu comment lên Firebase
+      function addComment() {
+          const input = document.getElementById('comment-input');
+          const text = input.value.trim();
+          if (!text) return;
+          currentSearchIDs.forEach(id => {
+              const newCommentRef = db.ref('comments/' + id).push();
+              newCommentRef.set({ text, replies: [] });
+          });
+          input.value = '';
+          renderComments();
+      }
+
+      // Lưu reply lên Firebase
+      function addReply(id, commentKey, replyText) {
+          if (!replyText) return;
+          const replyRef = db.ref(`comments/${id}/${commentKey}/replies`);
+          replyRef.once('value', snapshot => {
+              const replies = snapshot.val() || [];
+              replies.push(replyText);
+              replyRef.set(replies, renderComments);
+          });
+      }
+
+      // Hiển thị comment từ Firebase (realtime, 10 comment mới nhất toàn bộ hoặc theo tìm kiếm)
+      let commentListeners = {};
+      function renderComments() {
+          const commentDiv = document.getElementById('comments');
+          if (!commentDiv) return;
+          commentDiv.innerHTML = '';
+          Object.values(commentListeners).forEach(unsub => unsub && unsub());
+          commentListeners = {};
+          // Nếu không tìm kiếm, hiển thị 10 comment mới nhất của tất cả nhân viên
+          if (!currentSearchIDs || currentSearchIDs.length === 0) {
+              const ref = db.ref('comments');
+              const listener = ref.on('value', snapshot => {
+                  commentDiv.innerHTML = '';
+                  let allComments = [];
+                  const data = snapshot.val() || {};
+                  Object.entries(data).forEach(([id, comments]) => {
+                      Object.entries(comments).forEach(([key, comment]) => {
+                          allComments.push({ id, key, ...comment });
+                      });
+                  });
+                  // Sắp xếp theo key giảm dần (mới nhất lên trên)
+                  allComments.sort((a, b) => b.key.localeCompare(a.key));
+                  allComments = allComments.slice(0, 5);
+                  allComments.forEach(comment => {
+                      const avatarUrl = `${baseUrl}${comment.id}_thumb.jpg`;
+                      const avatarImg = `<img class='avatar-thumb' src='${avatarUrl}' alt='avatar' onerror="this.style.display='none'">`;
+                      const el = document.createElement('div');
+                      el.className = 'comment';
+                      el.innerHTML = `<div class='comment-content'><span class='comment-at'>@</span>${avatarImg}<span class='comment-id'>${comment.id}</span><span class='comment-colon'>:</span><span>${comment.text}</span></div>`;
+                      if (comment.replies && comment.replies.length > 0) {
+                          const replyBlock = document.createElement('div');
+                          replyBlock.style.marginTop = '2px';
+                          replyBlock.style.display = 'flex';
+                          replyBlock.style.flexDirection = 'column';
+                          comment.replies.forEach(rep => {
+                              const repEl = document.createElement('div');
+                              repEl.className = 'reply';
+                              repEl.textContent = rep;
+                              replyBlock.appendChild(repEl);
+                          });
+                          el.appendChild(replyBlock);
+                      }
+                      commentDiv.appendChild(el);
+                  });
+              });
+              commentListeners['all'] = () => ref.off('value', listener);
+              return;
+          }
+          // Nếu có tìm kiếm, hiển thị như cũ
+          currentSearchIDs.forEach(id => {
+              const userCommentSection = document.createElement('div');
+              userCommentSection.className = 'user-comment-section';
+              const userTitle = document.createElement('div');
+              userTitle.innerHTML = `<strong>Bình luận cho mã NV: ${id}</strong>`;
+              userCommentSection.appendChild(userTitle);
+              commentDiv.appendChild(userCommentSection);
+              const ref = db.ref('comments/' + id);
+              const listener = ref.on('value', snapshot => {
+                  userCommentSection.querySelectorAll('.comment').forEach(e => e.remove());
+                  const userComments = snapshot.val() ? snapshot.val() : {};
+                  let commentArr = Object.entries(userComments);
+                  commentArr.sort((a, b) => b[0].localeCompare(a[0]));
+                  commentArr = commentArr.slice(0, 5);
+                  commentArr.forEach(([key, comment]) => {
+                      const avatarUrl = `${baseUrl}${id}_thumb.jpg`;
+                      const avatarImg = `<img class='avatar-thumb' src='${avatarUrl}' alt='avatar' onerror="this.style.display='none'">`;
+                      const el = document.createElement('div');
+                      el.className = 'comment';
+                      el.innerHTML = `<div class='comment-content'><span class='comment-at'>@</span>${avatarImg}<span class='comment-id'>${id}</span><span class='comment-colon'>:</span><span>${comment.text}</span></div>`;
+                      const replyInput = document.createElement('input');
+                      replyInput.placeholder = 'Trả lời...';
+                      const replyBtn = document.createElement('button');
+                      replyBtn.textContent = 'Gửi';
+                      replyBtn.className = 'btn';
+                      replyBtn.onclick = () => {
+                          addReply(id, key, replyInput.value.trim());
+                          replyInput.value = '';
+                      };
+                      el.appendChild(replyInput);
+                      el.appendChild(replyBtn);
+                      if (comment.replies && comment.replies.length > 0) {
+                          const replyBlock = document.createElement('div');
+                          replyBlock.style.marginTop = '2px';
+                          replyBlock.style.display = 'flex';
+                          replyBlock.style.flexDirection = 'column';
+                          comment.replies.forEach(rep => {
+                              const repEl = document.createElement('div');
+                              repEl.className = 'reply';
+                              repEl.textContent = rep;
+                              replyBlock.appendChild(repEl);
+                          });
+                          el.appendChild(replyBlock);
+                      }
+                      userCommentSection.appendChild(el);
+                  });
+              });
+              commentListeners[id] = () => ref.off('value', listener);
+          });
+      }
+
+      // Gọi renderComments khi tìm kiếm user
+      function searchEmployees() {
+          const query = document.getElementById('search').value;
+          const ids = query.split(/[, :]+/).map(id => id.trim()).filter(Boolean);
+          currentSearchIDs = ids;
+          container.innerHTML = '';
+          ids.forEach(id => {
+              if (!isNaN(id) && id >= minID && id <= maxID) {
+                  renderAvatar(id);
+              }
+          });
+          renderComments();
+          toggleVarCard();
+      }
+
+      // Gọi renderComments khi load trang (nếu có user đang search)
+      document.addEventListener('DOMContentLoaded', renderComments);
+
+      document.getElementById('search').addEventListener('keypress', function (event) {
+          if (event.key === 'Enter') {
+              searchEmployees();
+          }
+      });
+
+      loadRandomImages();
+
+      function openCommentModal() {
+          document.getElementById('comment-modal').style.display = 'flex';
+          renderModalCommentsRealtime();
+      }
+      function closeCommentModal() {
+          document.getElementById('comment-modal').style.display = 'none';
+          // Xóa listener realtime khi đóng modal
+          if (window._modalCommentRef && window._modalCommentListener) {
+              window._modalCommentRef.off('value', window._modalCommentListener);
+              window._modalCommentRef = null;
+              window._modalCommentListener = null;
+          }
+      }
+      function addModalComment() {
+          const input = document.getElementById('modal-comment-input');
+          const text = input.value.trim();
+          if (!text) return;
+          // Kiểm tra tag user: @34892 hoặc @ 34892
+          let match = text.match(/^@\s*(\d{3,})\s*(.*)$/);
+          if (match) {
+              const userId = match[1];
+              const content = match[2].trim();
+              const newCommentRef = db.ref('comments/' + userId).push();
+              newCommentRef.set({ text: content, replies: [] });
+          } else {
+              // Bình luận chung, lưu vào node comments/general
+              const newCommentRef = db.ref('comments/general').push();
+              newCommentRef.set({ text, replies: [] });
+          }
+          input.value = '';
+      }
+      function addModalReply(userId, commentKey, replyInputId) {
+          const replyInput = document.getElementById(replyInputId);
+          const replyText = replyInput.value.trim();
+          if (!replyText) return;
+          const replyRef = db.ref(`comments/${userId}/${commentKey}/replies`);
+          replyRef.once('value', snapshot => {
+              const replies = snapshot.val() || [];
+              replies.push(replyText);
+              replyRef.set(replies);
+              replyInput.value = '';
+          });
+      }
+      function renderModalCommentsRealtime() {
+          const commentDiv = document.getElementById('modal-comments');
+          commentDiv.innerHTML = '';
+          // Lắng nghe realtime node comments
+          const ref = db.ref('comments');
+          const listener = ref.on('value', snapshot => {
+              commentDiv.innerHTML = '';
+              const data = snapshot.val() || {};
+              let allComments = [];
+              Object.entries(data).forEach(([id, comments]) => {
+                  Object.entries(comments).forEach(([key, comment]) => {
+                      allComments.push({ id, key, ...comment });
+                  });
+              });
+              allComments.sort((a, b) => b.key.localeCompare(a.key));
+              allComments.forEach((comment, idx) => {
+                  // Nếu là comment chung (general) thì lấy ảnh general, còn lại lấy ảnh theo id
+                  const avatarUrl = comment.id === 'general'
+                    ? `${baseUrl}general_thumb.jpg`
+                    : `${baseUrl}${comment.id}_thumb.jpg`;
+                  const avatarImg = `<img class='avatar-thumb' src='${avatarUrl}' alt='avatar' onerror="this.style.display='none'">`;
+                  const el = document.createElement('div');
+                  el.className = 'comment';
+                  el.innerHTML = `<div class='comment-content'><span class='comment-at'>@</span>${avatarImg}<span class='comment-id'>${comment.id}</span><span class='comment-colon'>:</span><span>${comment.text}</span></div>`;
+                  // Reply block (show max 5, show more if needed)
+                  let replyBlock = null;
+                  const commentKey = `${comment.id}_${comment.key}`;
+                  if (comment.replies && comment.replies.length > 0) {
+                      replyBlock = document.createElement('div');
+                      replyBlock.style.marginTop = '2px';
+                      replyBlock.style.display = 'flex';
+                      replyBlock.style.flexDirection = 'column';
+                      // Only show 5 first replies, show more if needed
+                      let repliesToShow = comment.replies;
+                      if (comment.replies.length > 5 && !showAllRepliesMap[commentKey]) {
+                          repliesToShow = comment.replies.slice(0, 5);
+                      }
+                      // Hiển thị reply theo đúng thứ tự lưu trong mảng (cũ nhất lên trên)
+                      repliesToShow.forEach(rep => {
+                          const repEl = document.createElement('div');
+                          repEl.className = 'reply';
+                          repEl.textContent = rep;
+                          replyBlock.appendChild(repEl);
+                      });
+                      // Show 'Xem thêm' button if more than 5 replies
+                      if (comment.replies.length > 5 && !showAllRepliesMap[commentKey]) {
+                          const showMoreBtn = document.createElement('button');
+                          showMoreBtn.textContent = 'Xem thêm';
+                          showMoreBtn.className = 'btn';
+                          showMoreBtn.style.fontSize = '12px';
+                          showMoreBtn.style.width = '90px';
+                          showMoreBtn.style.margin = '4px 0 0 32px';
+                          showMoreBtn.onclick = () => {
+                              showAllRepliesMap[commentKey] = true;
+                              renderModalCommentsRealtime();
+                          };
+                          replyBlock.appendChild(showMoreBtn);
+                      }
+                  }
+                  // Input trả lời luôn ở cuối cùng, cùng cột với đoạn chat
+                  const replyInputId = `reply-input-${comment.id}-${comment.key}`;
+                  const replyInputRow = document.createElement('div');
+                  replyInputRow.style.display = 'flex';
+                  replyInputRow.style.alignItems = 'flex-end';
+                  replyInputRow.style.marginTop = '4px';
+                  const replyInput = document.createElement('input');
+                  replyInput.type = 'text';
+                  replyInput.placeholder = 'Trả lời...';
+                  replyInput.id = replyInputId;
+                  replyInput.style.marginLeft = '8px';
+                  replyInput.style.fontSize = '12px';
+                  replyInput.addEventListener('keydown', function(e) {
+                      if (e.key === 'Enter') addModalReply(comment.id, comment.key, replyInputId);
+                  });
+                  const replyBtn = document.createElement('button');
+                  replyBtn.textContent = 'Gửi';
+                  replyBtn.className = 'btn';
+                  replyBtn.style.fontSize = '12px';
+                  replyBtn.onclick = () => addModalReply(comment.id, comment.key, replyInputId);
+                  replyInputRow.appendChild(replyInput);
+                  replyInputRow.appendChild(replyBtn);
+                  if (replyBlock) el.appendChild(replyBlock);
+                  el.appendChild(replyInputRow);
+                  commentDiv.appendChild(el);
+              });
+          });
+          window._modalCommentRef = ref;
+          window._modalCommentListener = listener;
+      }
+      function renderUserCommentsBlock() {
+        const block = document.getElementById('user-comments-block');
+        block.innerHTML = '';
+        if (!currentSearchIDs || currentSearchIDs.length === 0) return;
+        db.ref('comments').once('value', snapshot => {
+          const data = snapshot.val() || {};
+          let allComments = [];
+          currentSearchIDs.forEach(id => {
+            // Lấy comment trong node comments/[userId]
+            if (data[id]) {
+              Object.entries(data[id]).forEach(([key, comment]) => {
+                allComments.push({ id, key, ...comment });
+              });
+            }
+            // Lọc thêm comment trong node comments/general có chứa @id hoặc @ id
+            if (data.general) {
+              Object.entries(data.general).forEach(([key, comment]) => {
+                if (typeof comment.text === 'string' &&
+                  (comment.text.includes(`@${id}`) || comment.text.includes(`@ ${id}`))) {
+                  allComments.push({ id: 'general', key, ...comment });
+                }
+              });
+            }
+          });
+          if (allComments.length === 0) {
+            block.innerHTML = '<div style="color:#888;text-align:center;">Không có bình luận nào cho user này.</div>';
+            return;
+          }
+          allComments.sort((a, b) => b.key.localeCompare(a.key));
+          allComments.forEach(comment => {
+            const avatarUrl = `${baseUrl}${comment.id}_thumb.jpg`;
+            const avatarImg = `<img class='avatar-thumb' src='${avatarUrl}' alt='avatar' onerror="this.style.display='none'">`;
+            const el = document.createElement('div');
+            el.className = 'comment';
+            el.innerHTML = `<div class='comment-content'><span class='comment-at'>@</span>${avatarImg}<span class='comment-id'>${comment.id}</span><span class='comment-colon'>:</span><span>${comment.text}</span></div>`;
+            if (comment.replies && comment.replies.length > 0) {
+                const replyBlock = document.createElement('div');
+                replyBlock.style.marginTop = '2px';
+                replyBlock.style.display = 'flex';
+                replyBlock.style.flexDirection = 'column';
+                let repliesToShow = comment.replies;
+                if (comment.replies.length > 5 && !showAllRepliesMap[`${comment.id}_${comment.key}`]) {
+                    repliesToShow = comment.replies.slice(0, 5);
+                }
+                repliesToShow.forEach(rep => {
+                    const repEl = document.createElement('div');
+                    repEl.className = 'reply';
+                    repEl.textContent = rep;
+                    replyBlock.appendChild(repEl);
+                });
+                if (comment.replies.length > 5 && !showAllRepliesMap[`${comment.id}_${comment.key}`]) {
+                    const showMoreBtn = document.createElement('button');
+                    showMoreBtn.textContent = 'Xem thêm';
+                    showMoreBtn.className = 'btn';
+                    showMoreBtn.style.fontSize = '12px';
+                    showMoreBtn.style.width = '90px';
+                    showMoreBtn.style.margin = '4px 0 0 32px';
+                    showMoreBtn.onclick = () => {
+                        showAllRepliesMap[`${comment.id}_${comment.key}`] = true;
+                        renderUserCommentsBlock();
+                    };
+                    replyBlock.appendChild(showMoreBtn);
+                }
+                el.appendChild(replyBlock);
+            }
+            block.appendChild(el);
+          });
+        });
+      }
+      // Ẩn/hiện card Var khi tìm kiếm user
+      function toggleVarCard() {
+        const varCard = document.getElementById('var-card');
+        const userCommentsBlock = document.getElementById('user-comments-block');
+        if (currentSearchIDs && currentSearchIDs.length > 0) {
+          varCard.style.display = 'none';
+          userCommentsBlock.style.display = 'block';
+          renderUserCommentsBlock();
+        } else {
+          varCard.style.display = 'block';
+          userCommentsBlock.style.display = 'none';
+        }
+      }
+      // Gửi bình luận khi nhấn Enter trong popup
+      document.addEventListener('DOMContentLoaded', function() {
+        const modalInput = document.getElementById('modal-comment-input');
+        if (modalInput) {
+          modalInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+              addModalComment();
+            }
+          });
+        }
+      });
+      // Gửi bình luận khi nhấn Enter trong ô tìm kiếm (nếu có input ngoài)
+      // (Nếu bạn có ô nhập bình luận ngoài, thêm sự kiện tương tự ở đây)
+      // Khi load trang, ẩn block comment user nếu chưa tìm kiếm
+      document.addEventListener('DOMContentLoaded', function() {
+        toggleVarCard();
+      });
+    </script>
+</body>
+</html>
